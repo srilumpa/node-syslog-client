@@ -68,7 +68,8 @@ function Client(target, options) {
 	this.severity =	options.severity || Severity.Informational;
   this.rfc3164 = typeof options.rfc3164 === 'boolean' ? options.rfc3164 : true;
 	this.appName = options.appName || process.title.substring(process.title.lastIndexOf("/")+1, 48);
-    this.dateFormatter = options.dateFormatter || function() { return this.toISOString(); };
+		this.dateFormatter = options.dateFormatter || function() { return this.toISOString(); };
+	this.sd = options.sd;
 
 	this.transport = Transport.Udp;
 	if (options.transport &&
@@ -138,7 +139,13 @@ Client.prototype.buildFormattedMessage = function buildFormattedMessage(message,
 				+ process.pid
 				+ " "
 				+ msgid
-				+ " - "				// no STRUCTURED-DATA
+				+ " ";
+		if (options.sd) {
+			formattedMessage += "[" + options.sd + "]";
+		} else {
+			formattedMessage += "-";
+		}
+		formattedMessage += " "
 				+ message
 				+ newline;
 	}
@@ -192,6 +199,9 @@ Client.prototype.log = function log() {
   }
   if (typeof options.syslogHostname === "undefined") {
     options.syslogHostname = this.syslogHostname;
+	}
+	if (typeof options.sd === "undefined") {
+    options.sd = this.sd;
   }
 
 	var fm = this.buildFormattedMessage(message, options);
